@@ -119,30 +119,30 @@ def read_gff(gff, strain):
     for n in strainG.nodes():
         for n2 in strainG.nodes:
             if n != n2:
-                if strainG.node[n]['cluster'] == strainG.node[n2]['cluster']:
+                if strainG.nodes[n]['cluster'] == strainG.nodes[n2]['cluster']:
                     if strainG.has_edge(n, n2):
                         if strainG[n][n2][0]['type'] == "local" and len(strainG[n][n2]) == 1:
                             strainG.add_edge(n, n2, weight=1, color='grey', type="paralogy")
                     else:
                         strainG.add_edge(n, n2, weight=1, color='grey', type="paralogy")
-                    p = strainG.node[n]['paralogs']
+                    p = strainG.nodes[n]['paralogs']
                     if p == "":
                         p = n2
                     else:
-                        p_set = set(re.split(",", strainG.node[n]['paralogs']))
+                        p_set = set(re.split(",", strainG.nodes[n]['paralogs']))
                         p_set.add(n2)
                         ps = ",".join(p_set)
                         p = ps
-                    strainG.node[n]['paralogs'] = p
-                    p2 = strainG.node[n2]['paralogs']
+                    strainG.nodes[n]['paralogs'] = p
+                    p2 = strainG.nodes[n2]['paralogs']
                     if p2 == "":
                         p2 = n
                     else:
-                        p2_set = set(re.split(",", strainG.node[n2]['paralogs']))
+                        p2_set = set(re.split(",", strainG.nodes[n2]['paralogs']))
                         p2_set.add(n)
                         p2s = ",".join(p2_set)
                         p2 = p2s
-                    strainG.node[n2]['paralogs'] = p2
+                    strainG.nodes[n2]['paralogs'] = p2
     allstrains[strain] = strainG
     print("Successfully read strain " + strain)
 
@@ -178,23 +178,23 @@ def draw_clusters():
         g = allstrains[s]
         # add the nodes
         for n in g.nodes():
-            c = g.node[n]['cluster']
+            c = g.nodes[n]['cluster']
             if c in pangenome:
-                s_set = set(re.split(",", pangenome.node[c]['strains']))
+                s_set = set(re.split(",", pangenome.nodes[c]['strains']))
                 s_set.add(s)
                 st = ",".join(s_set)
-                pangenome.node[c]['strains'] = st
-                if g.node[n]['paralogs'] != "":
-                    ps = re.split(",", g.node[n]['paralogs'])
+                pangenome.nodes[c]['strains'] = st
+                if g.nodes[n]['paralogs'] != "":
+                    ps = re.split(",", g.nodes[n]['paralogs'])
                 else:
                     ps = []
                 # weight is here just adding up the copy numbers
-                pangenome.node[c]['weight'] = pangenome.node[c]['weight']+len(ps)+1
-                if len(ps)+1 > pangenome.node[c]['paralogy']:
-                    pangenome.node[c]['paralogy'] = len(ps)+1
+                pangenome.nodes[c]['weight'] = pangenome.nodes[c]['weight']+len(ps)+1
+                if len(ps)+1 > pangenome.nodes[c]['paralogy']:
+                    pangenome.nodes[c]['paralogy'] = len(ps)+1
             else:
-                if g.node[n]['paralogs'] != "":
-                    ps = re.split(",", g.node[n]['paralogs'])
+                if g.nodes[n]['paralogs'] != "":
+                    ps = re.split(",", g.nodes[n]['paralogs'])
                 else:
                     ps = []
                 pangenome.add_node(c, strains=s, weight=len(ps)+1, paralogy=len(ps)+1, annotation="unknown", representative="unknown", core="shell")
@@ -202,20 +202,20 @@ def draw_clusters():
     #annotate all nodes with the representative sequence and annotation and determine their "coreness", also average out the weight
     nl = list(pangenome.nodes())
     for node in nl:
-        pangenome.node[node]['representative'] = annotations[node][0]
-        pangenome.node[node]['annotation'] = annotations[node][1]
-        pangenome.node[node]['weight'] = float(pangenome.node[node]['weight'])/float(num_genomes)
-        ss = re.split(",", pangenome.node[node]['strains'])
+        pangenome.nodes[node]['representative'] = annotations[node][0]
+        pangenome.nodes[node]['annotation'] = annotations[node][1]
+        pangenome.nodes[node]['weight'] = float(pangenome.nodes[node]['weight'])/float(num_genomes)
+        ss = re.split(",", pangenome.nodes[node]['strains'])
         if float(len(ss))/float(num_genomes) >= args.hardcore:
-            pangenome.node[node]['core'] = "hard core"
+            pangenome.nodes[node]['core'] = "hard core"
         else:
             if float(len(ss))/float(num_genomes) >= args.softcore:
-                pangenome.node[node]['core'] = "soft core"
+                pangenome.nodes[node]['core'] = "soft core"
             else:
                 if float(len(ss)) / float(num_genomes) >= args.shell:
-                    pangenome.node[node]['core'] = "shell"
+                    pangenome.nodes[node]['core'] = "shell"
                 else:
-                    pangenome.node[node]['core'] = "cloud"
+                    pangenome.nodes[node]['core'] = "cloud"
 
     # now I need to add the edges... and handle the stupid paralog nodes
     # and edge has a weight and a list of strains it is found in and how core it is
@@ -223,8 +223,8 @@ def draw_clusters():
         g = allstrains[s]
         # add the nodes
         for u, v in g.edges():
-            cl1 = g.node[u]['cluster']
-            cl2 = g.node[v]['cluster']
+            cl1 = g.nodes[u]['cluster']
+            cl2 = g.nodes[v]['cluster']
             for k in g[u][v]:
                 if g[u][v][k]['type'] == "local":
                     if pangenome.has_edge(cl1, cl2):
@@ -265,7 +265,7 @@ def draw_clusters():
         tt = False
         if para == "cluster_1290":
             tt = True
-        if pangenome.node[para]['paralogy'] > 1:
+        if pangenome.nodes[para]['paralogy'] > 1:
             neighborhoods = list()
             clusterhood = list()
             # find set of neighborhoods (left&right local neighbor in all straingraphs)
@@ -292,17 +292,17 @@ def draw_clusters():
 
                             for j in strainG[c][n]:
                                 if strainG[c][n][j]['type'] == "local":
-                                    clus.add(strainG.node[n]['cluster'])
+                                    clus.add(strainG.nodes[n]['cluster'])
                                     if tt:
                                         sys.stderr.write("neighbor : " + str(n) + "\n")
-                                        sys.stderr.write("neighbor cluster: " + str(strainG.node[n]['cluster']) + "\n")
-                                    if strainG.node[n]['cluster'] in neighs:
-                                        s_set = neighs[strainG.node[n]['cluster']]
+                                        sys.stderr.write("neighbor cluster: " + str(strainG.nodes[n]['cluster']) + "\n")
+                                    if strainG.nodes[n]['cluster'] in neighs:
+                                        s_set = neighs[strainG.nodes[n]['cluster']]
                                     else:
                                         s_set = set()
                                     s_set.add(s)
 
-                                    neighs[strainG.node[n]['cluster']] = s_set
+                                    neighs[strainG.nodes[n]['cluster']] = s_set
                         clus = frozenset(clus)
 
                         if neighs:
@@ -497,13 +497,13 @@ def draw_clusters():
             for neigh in paralogs[paral][s]:
                 if testing:
                     sys.stderr.write("neigh: " + str(neigh) + " \n")
-                if re.search("_subcluster", neigh) or pangenome.node[neigh]['paralogy'] != 1:
+                if re.search("_subcluster", neigh) or pangenome.nodes[neigh]['paralogy'] != 1:
                     if testing:
                         sys.stderr.write("Neighbor is a paralog! \n")
                     nneigh = re.split("_subcluster", neigh)[0]
                     for subclust in paralogs[nneigh]:
 
-                        #Somehow find the matching neighborhood and adapt it with the correct subcluster
+                        #Find the matching neighborhood and adapt it with the correct subcluster
                         # Find out if this is the neighboring subcluster which has the current paralog as neighbor,
                         # if so, replace the names (of the neighbor in current and the current paralogous subluster s in the neighboring subcluster
                         if paral in paralogs[nneigh][subclust]:
@@ -552,7 +552,7 @@ def draw_clusters():
         for ss in paralogs[paral]:
             if testing:
                 sys.stderr.write("ss: " + str(ss) + " \n")
-            # Oddly enough, there are somehow clusters, not strains in the strainlists??
+            # There are clusters, not strains in the strainlists??
             # Also, they are empty a lot, but not always for subclusters.
             if re.search("_subcluster", ss):
                 strainl = parastrains[paral][ss]
@@ -575,19 +575,19 @@ def draw_clusters():
 
             straintxt = ",".join(strainlist)
             if ss not in pangenome.nodes():
-                pangenome.add_node(ss, strains=straintxt, weight=w, paralogy=pangenome.node[paral]['paralogy'],
-                                    annotation=pangenome.node[paral]['annotation'],
-                                    representative=pangenome.node[paral]['representative'],
-                                    core=pangenome.node[paral]['core'])
+                pangenome.add_node(ss, strains=straintxt, weight=w, paralogy=pangenome.nodes[paral]['paralogy'],
+                                    annotation=pangenome.nodes[paral]['annotation'],
+                                    representative=pangenome.nodes[paral]['representative'],
+                                    core=pangenome.nodes[paral]['core'])
                 if testing:
                     sys.stderr.write("Subcluster node:" + ss + " added.\n")
             else:
-                pangenome.node[ss]['strains'] = straintxt
-                pangenome.node[ss]['weight'] = w
-                pangenome.node[ss]['paralogy'] = pangenome.node[paral]['paralogy']
-                pangenome.node[ss]['annotation'] = pangenome.node[paral]['annotation']
-                pangenome.node[ss]['representative'] = pangenome.node[paral]['representative']
-                pangenome.node[ss]['core'] = pangenome.node[paral]['core']
+                pangenome.nodes[ss]['strains'] = straintxt
+                pangenome.nodes[ss]['weight'] = w
+                pangenome.nodes[ss]['paralogy'] = pangenome.nodes[paral]['paralogy']
+                pangenome.nodes[ss]['annotation'] = pangenome.nodes[paral]['annotation']
+                pangenome.nodes[ss]['representative'] = pangenome.nodes[paral]['representative']
+                pangenome.nodes[ss]['core'] = pangenome.nodes[paral]['core']
 
             for neigh in paralogs[paral][ss]:
                 if testing:
@@ -638,9 +638,9 @@ def draw_clusters():
                     sys.stderr.write("Teststrain: " + str(st) + " \n")
                 s = allstrains[st]
                 for n in s.nodes():
-                    if s.node[n]['cluster'] == olds:
+                    if s.nodes[n]['cluster'] == olds:
                         e1.add(n)
-                    if s.node[n]['cluster'] == oldneigh:
+                    if s.nodes[n]['cluster'] == oldneigh:
                         e2.add(n)
                 for a in e1:
                     for b in e2:
@@ -700,7 +700,7 @@ def draw_clusters():
     # clean up
     thenodes = list(pangenome.nodes())
     for tn in thenodes:
-        if not pangenome.node[tn].keys():
+        if not pangenome.nodes[tn].keys():
             pangenome.remove_node(tn)
             sys.stderr.write("Removed node: "+tn+" \n")
         if re.search("_subcluster", tn):
@@ -711,8 +711,8 @@ def draw_clusters():
     draw_genomes()
     pl = set(pangenome.nodes())
     for p in pl:
-        s_set = set(re.split(",", pangenome.node[p]['strains']))
-        pangenome.node[p]['straincount'] = len(s_set)
+        s_set = set(re.split(",", pangenome.nodes[p]['strains']))
+        pangenome.nodes[p]['straincount'] = len(s_set)
 
     print("Generated pangenome!")
 
@@ -733,19 +733,19 @@ def draw_genomes():
     for s in thestrains:
         straingraph = allstrains[s]
         for n in straingraph.nodes():
-            cl = straingraph.node[n]['cluster']
+            cl = straingraph.nodes[n]['cluster']
 
             if cl in pangenome.nodes():
 
-                sts = re.split(",", pangenome.node[cl]['strains'])
+                sts = re.split(",", pangenome.nodes[cl]['strains'])
 
             else:
                 for cx in pangenome.nodes():
                     if cx.startswith(cl):
-                        teststrains = re.split(",", pangenome.node[cx]['strains'])
+                        teststrains = re.split(",", pangenome.nodes[cx]['strains'])
                         if s in teststrains:
                             sts = teststrains
-            straingraph.node[n]['stability'] = len(sts)
+            straingraph.nodes[n]['stability'] = len(sts)
             if n in clusterhoods:
 
 
@@ -755,11 +755,11 @@ def draw_genomes():
 
                         #find the neighborhood in the pangenome paralogs
                         for p in hoods:
-                            if straingraph.node[n]['cluster'].startswith(p):
+                            if straingraph.nodes[n]['cluster'].startswith(p):
                                 for h in hoods[p]:
                                     if set(h) == set(cc) or set(cc).issubset(set(h)):
                                         handled = True
-                                        straingraph.node[n]['cluster'] = hoods[p][h]
+                                        straingraph.nodes[n]['cluster'] = hoods[p][h]
                         if not handled:
                             sys.stderr.write("node not handled: " + str(n) + "\n")
 
