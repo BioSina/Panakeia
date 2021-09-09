@@ -30,14 +30,14 @@ def main():
             ideogenome(l)
 
     for n in list(panG.nodes()):
-        if 'weight' not in panG.node[n]:
+        if 'weight' not in panG.nodes[n]:
             panG.remove_node(n)
-            print ("node removed: " + n)
-        if 'overlay' not in panG.node[n]:
-            panG.node[n]['overlay'] = panG.node[n]['color']
+            print("node removed: " + n)
+        if 'overlay' not in panG.nodes[n]:
+            panG.nodes[n]['overlay'] = "gray"
     for a,b in list(panG.edges()):
         if 'overlay' not in panG[a][b]:
-            panG[a][b]['overlay'] = panG[a][b]['color']
+            panG[a][b]['overlay'] = "gray"
 
     nx.write_graphml(panG, args.highlighted)
 
@@ -46,18 +46,18 @@ def ideogenome(ideo):
     global panG
     ideoG = nx.read_graphml(ideo)
     for n in ideoG.nodes():
-        l = ideoG.nodes[n]['label']
+        l = ideoG.nodes[n]['cluster']
         if panG.has_node(l):
             panG.nodes[l]['overlay'] = 'orange'
         else:
-            panG.add_node(l, weight=1.0, strains=1, color='yellow')
+            panG.add_node(l, weight=1.0, strains=1, overlay='yellow')
     for n1, n2 in ideoG.edges():
-        l1 = ideoG.nodes[n1]['label']
-        l2 = ideoG.nodes[n2]['label']
+        l1 = ideoG.nodes[n1]['cluster']
+        l2 = ideoG.nodes[n2]['cluster']
         if panG.has_edge(l1, l2):
             panG[l1][l2]['overlay'] = 'orange'
         else:
-            panG.add_edge(l1, l2, weight=1.0, color='yellow')
+            panG.add_edge(l1, l2, weight=1.0, overlay='yellow')
 
 
 if __name__ == "__main__":
