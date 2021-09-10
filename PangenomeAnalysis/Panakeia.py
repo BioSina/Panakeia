@@ -54,7 +54,6 @@ global clusterhoods
 clusterhoods = dict()
 
 
-
 def read_clusters(cluster, rep):
     global mapping
     with open(cluster) as clu:
@@ -217,7 +216,7 @@ def draw_clusters():
                 else:
                     pangenome.nodes[node]['core'] = "cloud"
 
-    # now I need to add the edges... and handle the stupid paralog nodes
+    # add the edges... and handle the paralog nodes
     # and edge has a weight and a list of strains it is found in and how core it is
     for s in allstrains:
         g = allstrains[s]
@@ -240,7 +239,7 @@ def draw_clusters():
     edges = list(pangenome.edges())
 
     for u, v in edges:
-        # adapt how core the edge is
+        # adapt "how core" the edge is
         if float(pangenome[u][v]['weight'])/float(num_genomes) >= args.hardcore:
             pangenome[u][v]['core'] = "hard core"
         else:
@@ -255,8 +254,6 @@ def draw_clusters():
         if args.weightcutoff:
             if pangenome[u][v]['weight'] < args.weightcutoff:
                 pangenome.remove_edge(u, v)
-
-
 
     nodes = pangenome.nodes()
 
@@ -277,7 +274,6 @@ def draw_clusters():
                 if tt:
                     sys.stderr.write("c : " + str(c) + "\n")
                 for s in allstrains:
-
 
                     strainG = allstrains[s]
                     if c in strainG.nodes():
@@ -361,12 +357,8 @@ def draw_clusters():
                                     sstrain = sstrain | strain_s[x]
                             strain_s[x] = sstrain|bx
 
-
-
                     else:
                         # handle ones that are subsets (fully containing matches)
-
-
                         for b in neighboring.keys():
                             if a_set.issubset(b):
                                 potential.add(b)
@@ -695,8 +687,6 @@ def draw_clusters():
             if tests:
                 sys.stderr.write("added edge for: " + str(xeset) + "\n")
 
-
-
     # clean up
     thenodes = list(pangenome.nodes())
     for tn in thenodes:
@@ -726,7 +716,6 @@ def draw_genomes():
     global allstrains
     global clusterhoods
     global hoods
-
 
     thestrains = list(allstrains.keys())
 
