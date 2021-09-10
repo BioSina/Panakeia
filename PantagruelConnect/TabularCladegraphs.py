@@ -22,7 +22,7 @@ def tab_cladegraph(clade, name):
     nodes = list(s.nodes())
     if len(nodes) > 0:
         for n in nodes:
-            if s.node[n]['core'] == "hard core":
+            if s.nodes[n]['core'] == "hard core":
                 s.remove_node(n)
         ccs = sorted(nx.connected_components(s), key=len, reverse=True)
         with open(outprefix+"softcore+.txt", 'w') as out:
@@ -31,14 +31,14 @@ def tab_cladegraph(clade, name):
                 components = ",".join(cc)
                 annots = list()
                 for c in cc:
-                    annots.append(s.node[c]['annotation'])
+                    annots.append(s.nodes[c]['annotation'])
                 annotations = "|".join(annots)
                 out.write("component"+str(counter)+"\t"+components+"\t"+annotations+"\n")
                 counter = counter+1
 
         nodes = list(s.nodes())
         for n in nodes:
-            if s.node[n]['core'] == "soft core":
+            if s.nodes[n]['core'] == "soft core":
                 s.remove_node(n)
         ccs = sorted(nx.connected_components(s), key=len, reverse=True)
         with open(outprefix+"shell+.txt", 'w') as out:
@@ -47,14 +47,14 @@ def tab_cladegraph(clade, name):
                 components = ",".join(cc)
                 annots = list()
                 for c in cc:
-                    annots.append(s.node[c]['annotation'])
+                    annots.append(s.nodes[c]['annotation'])
                 annotations = "|".join(annots)
                 out.write("component"+str(counter)+"\t"+components+"\t"+annotations+"\n")
                 counter = counter + 1
 
         nodes = list(s.nodes())
         for n in nodes:
-            if s.node[n]['core'] == "shell":
+            if s.nodes[n]['core'] == "shell":
                 s.remove_node(n)
         ccs = sorted(nx.connected_components(s), key=len, reverse=True)
         with open(outprefix+"cloud.txt", 'w') as out:
@@ -63,14 +63,14 @@ def tab_cladegraph(clade, name):
                 components = ",".join(cc)
                 annots = list()
                 for c in cc:
-                    annots.append(s.node[c]['annotation'])
+                    annots.append(s.nodes[c]['annotation'])
                 annotations = "|".join(annots)
                 out.write("component"+str(counter)+"\t"+components+"\t"+annotations+"\n")
                 counter = counter + 1
 
         nodes = list(s2.nodes())
         for n in nodes:
-            if s2.node[n]['highlight'] != "specific":
+            if s2.nodes[n]['highlight'] != "specific":
                 s2.remove_node(n)
         ccs = sorted(nx.connected_components(s2), key=len, reverse=True)
         with open(outprefix+"specific.txt", 'w') as out:
@@ -79,7 +79,7 @@ def tab_cladegraph(clade, name):
                 components = ",".join(cc)
                 annots = list()
                 for c in cc:
-                    a = re.sub("\n", "", s2.node[c]['annotation'])
+                    a = re.sub("\n", "", s2.nodes[c]['annotation'])
                     annots.append(a)
                 annotations = "|".join(annots)
                 annotations = re.sub("\n", "", annotations)
