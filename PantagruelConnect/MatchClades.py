@@ -276,7 +276,7 @@ if __name__ == "__main__":
     parser.add_argument("pangenome", help="Pangenome GraphML")
     parser.add_argument("outdir", help="Output directory")
     parser.add_argument("clusters", help="Cluster file from Panakeia")
-    parser.add_argument("map", help="Mapping file for Vibrio")
+    parser.add_argument("map", help="Mapping file for clusterID to Pantagruel orthologous groups")
     parser.add_argument("clades", help="Clade file")
     parser.add_argument("spec", help="Clade specific genes file")
     parser.add_argument("-cladepan", help="Exisiting cladified pangenome file")
